@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/768590/64171aebc4174cb185d3469998a41ac3
+bundleId: https://api.rpubs.com/api/v1/document/768590/64171aebc4174cb185d3469998a41ac3
+url: http://rpubs.com/feliciahaliman/768590
+when: 1622049265.6208
+lastSyncTime: 1622049265.6208

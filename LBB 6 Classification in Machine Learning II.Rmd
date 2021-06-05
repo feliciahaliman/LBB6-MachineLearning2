@@ -1,0 +1,113 @@
+---
+title: '6. LBB: Classification in Machine Learning II "Internet Tech Support"'
+author: "Felicia Haliman"
+date: "`r format(Sys.Date(), '%B %e, %Y')`"
+output:
+  html_document:
+    theme: cosmo
+    highlight: tango
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Dewasa ini internet merupakan kebutuhan pokok bagi kaum millenial keatas, pada penelitian ini, saya ingin meneliti mengenai pengaruh Jenis Internet apakah yang memiliki tech support. Penelitian ini akan menggunakan metode `Decision Tree` dan `Naive Bayes`.
+
+# Library
+
+```{r warning = FALSE, message = FALSE}
+set.seed(666)
+library(dplyr) 
+library(ggplot2) 
+library(gridExtra) 
+library(inspectdf) 
+library(tidymodels) 
+library(caret) 
+library(partykit)
+library(e1071)
+```
+
+# Read Data
+
+```{r}
+G1 <- read.csv("Data/Telco_Churn.csv", stringsAsFactors = T)
+glimpse(G1)
+head(G1,10)
+```
+
+## Data Cleaning
+
+```{r}
+anyNA(G1)
+colSums(is.na(G1))
+```
+Clean!
+
+## Proposi Data
+
+```{r}
+table(G1$InternetService) %>% 
+  prop.table()
+```
+Proporsi membutuhkan upsample di No, agar balance.
+
+## Train-Test Split
+
+```{r}
+index <- initial_split(G1, prop = 0.8)
+
+data_train <- training(index)
+data_test <- testing(index)
+```
+
+```{r}
+train_up <- upSample(x = data_train,
+                     y = data_train$InternetService, yname = "InternetService"
+                     )
+
+table(train_up$InternetService)
+```
+# Pembuatan Model
+## Decision Tree
+
+```{r}
+G2 <- ctree(TechSupport ~ InternetService, data = data_train)
+plot(G2)
+```
+
+### Model Evaluation
+
+```{r}
+pred_test <- predict(G2, data_test)
+
+head(pred_test)
+```
+
+```{r}
+confusionMatrix(pred_test, data_test$TechSupport, positive = "Yes")
+```
+Dari Plot tersebut dapat disimpulkan bahwa DSL(atau yang kita tahu dengan kabel Croax) lebih memiliki technical support dibandingkan dengan layanan dengan fiber optic. Pengujian data tersebut memiliki akurasi 70%.
+
+## Naive Bayes
+
+```{r}
+model_bayes <- naiveBayes(InternetService ~ ., train_up)
+
+pred_bayes <- predict(model_bayes, data_test)
+
+confusionMatrix(pred_bayes, data_test$InternetService, positive = "Yes")
+```
+
+Pada metode `naive bayes` memperlihatkan bahwa tingkat akurasi 90% sama dengan model ctree.
+
+# Conclusion
+
+Pada kedua uji test tersebut lebih baik menggunakan metode `naive bayes` dengan tingkat akurasi 90%.
+
+Berdasarkan Uji ctree, dapat disimpulkan bahwa yang lebih memiliki tech support adalah layanan DSL dibandingkan dengan layanan Fiber Optik.
